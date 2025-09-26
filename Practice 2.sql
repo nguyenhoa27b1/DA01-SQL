@@ -52,3 +52,11 @@ where (mod(id,2)=1) and (description not like '%boring%')
 order by rating desc
 
 ---Ex10
+select teacher_id, 
+count(distinct subject_id) as cnt 
+from teacher 
+group by teacher_id 
+order by teacher_id
+
+---Ex11 (lỗi link)
+---Ex12 (lỗi link)
