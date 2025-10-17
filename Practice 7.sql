@@ -64,3 +64,69 @@ SELECT
 FROM tweets
 
 ---Ex6
+  with 
+table1 as
+  (SELECT merchant_id,
+  lag(merchant_id) over(partition by merchant_id, credit_card_id, amount  order by transaction_timestamp) as pre_merchant,
+  credit_card_id,
+  lag(credit_card_id) over(partition by merchant_id, credit_card_id, amount  order by transaction_timestamp) as pre_credit,
+  amount,
+  lag(amount) over(partition by merchant_id, credit_card_id, amount  order by transaction_timestamp) as pre_amount,
+  transaction_timestamp - lag(transaction_timestamp) over(partition by merchant_id, credit_card_id, amount  order by transaction_timestamp) as time
+  FROM transactions),
+table2 AS
+  (SELECT *,
+  extract(day from time) as day,
+  extract(hour from time) as hour,
+  extract(minute from time) as minute
+  from table1)
+select count(*) from table2
+where merchant_id=pre_merchant
+  and credit_card_id=pre_credit
+  and amount=pre_amount
+  and day=0
+  and hour=0
+  and minute<=10
+  
+---Ex7
+WITH ranked_products AS (
+    SELECT 
+        category,
+        product,
+        SUM(spend) AS total_spend,
+        RANK() OVER (
+            PARTITION BY category
+            ORDER BY SUM(spend) DESC
+        ) AS rank_in_category
+    FROM product_spend
+    WHERE EXTRACT(YEAR FROM transaction_date) = 2022
+    GROUP BY category, product
+)
+SELECT 
+    category,
+    product,
+    total_spend 
+FROM ranked_products
+WHERE rank_in_category <= 2
+ORDER BY category, total_spend DESC;
+
+---Ex8
+WITH
+table1 AS
+  (SELECT c.artist_name,
+  count(*)
+  from global_song_rank as a 
+  join songs as b 
+  on a.song_id=b.song_id
+  join artists as c
+  on b.artist_id=c.artist_id
+  where rank<=10
+  group by c.artist_name),
+table2 as
+  (SELECT artist_name, 
+  dense_rank() over(order by count desc) as artist_rank
+  from table1 
+  order by artist_rank)
+select artist_name,  artist_rank
+from table2
+where artist_rank<=5
