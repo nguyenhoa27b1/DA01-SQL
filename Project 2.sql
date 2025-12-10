@@ -61,3 +61,12 @@ where tag is not null
 union all
 select * from male as b
 where tag is not null
+
+4. Top 5 sản phẩm mỗi tháng
+select 
+format_date ('%y-%m', created_at) as month_year,
+b.product_id,
+from bigquery-public-data.thelook_ecommerce.order_items as a
+where created_at between '2019-01-01' and '2022-04-30'
+join bigquery-public-data.thelook_ecommerce.products as b
+on a.product_id=b.product_id
