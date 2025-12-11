@@ -71,7 +71,7 @@ where created_at between '2019-01-01' and '2022-04-30'
 join bigquery-public-data.thelook_ecommerce.products as b
 on a.product_id=b.product_id
 
-5. 
+tạo dataset. 
 with table1 as
 (select 
   extract (month from a.created_at) as month,
