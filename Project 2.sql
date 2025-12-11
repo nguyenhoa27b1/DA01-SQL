@@ -76,6 +76,17 @@ order by format_date ('%y-%m', created_at))
 select * from table1
 where rank_per_month<=5
 
+5.
+  select 
+format_date ('%y-%m-%d', a.created_at) as dates,
+b.category as product_categories,
+sum(a.sale_price) as revenue
+from bigquery-public-data.thelook_ecommerce.order_items as a 
+join bigquery-public-data.thelook_ecommerce.products as b
+on b.id=a.product_id
+where a.created_at between '2022-01-15' and '2022-04-15'
+group by format_date ('%y-%m-%d', a.created_at),
+b.category 
 
 tạo dataset. 
 with table1 as
