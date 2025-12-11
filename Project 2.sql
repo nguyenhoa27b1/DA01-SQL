@@ -63,13 +63,19 @@ select * from male as b
 where tag is not null
 
 4. Top 5 sản phẩm mỗi tháng
-select 
+with table1 as
+(select 
 format_date ('%y-%m', created_at) as month_year,
-b.product_id,
+b.id, b.name, b.retail_price, b.cost, b.retail_price-b.cost as profit,
+dense_rank() over (partition by format_date ('%y-%m', created_at) order by retail_price-cost desc) as rank_per_month
 from bigquery-public-data.thelook_ecommerce.order_items as a
-where created_at between '2019-01-01' and '2022-04-30'
 join bigquery-public-data.thelook_ecommerce.products as b
-on a.product_id=b.product_id
+on a.product_id=b.id
+where (a.created_at between '2019-01-01' and '2022-04-30')
+order by format_date ('%y-%m', created_at))
+select * from table1
+where rank_per_month<=5
+
 
 tạo dataset. 
 with table1 as
